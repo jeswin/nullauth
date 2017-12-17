@@ -113,13 +113,11 @@ Grant external access with username=(username@provider), permissions=(comma_sepa
 Grant external access with username=jeswin@docs.example.com, permissions=read,contacts, consumer=publisher.example.com, timestamp=1513348513265
 ```
 
-* publisher.example.com must now sign the above message
+* publisher.example.com signs the above message and sends it to the user
 
 ```javascript
 Grant external access with username=(username@provider), permissions=(comma_separated_permissions), consumer=(consumer), timestamp=(utc_milliseconds);CONSUMER_SIGNATURE_STRING
 ```
-
-* publisher.example.com requests the user to sign the above challenge
 
 * User verifies if the signature matches that of the consumer (publisher.example.com), signs it, and sends it to publisher.example.com
 

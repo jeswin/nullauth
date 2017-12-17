@@ -78,7 +78,7 @@ Login with username=jeswin@example.com, timestsamp=1513348513265
 Login with username=(username@website), timestamp=(utc_milliseconds);APP_SIGNATURE_STRING
 ```
 
-* User signs challenge with private key and sends it to the server.
+* User verifies the app signature, signs challenge with his or her private key, and sends it to the server.
 
 * Server verifies the username, and if the utcmilliseconds is recent enough returns a session token and optional expiry. If expiry is not set, it is left to the app.
 
@@ -113,9 +113,7 @@ Grant external access with username=(username@provider), permissions=(comma_sepa
 Grant external access with username=jeswin@docs.example.com, permissions=read,contacts, consumer=publisher.example.com, timestamp=1513348513265
 ```
 
-* publisher.example.com must now hash the above message with SHA256 and encrypt it with a private key
-
-* The challenge now looks like
+* publisher.example.com must now sign the above message
 
 ```javascript
 Grant external access with username=(username@provider), permissions=(comma_separated_permissions), consumer=(consumer), timestamp=(utc_milliseconds);CONSUMER_SIGNATURE_STRING
@@ -123,11 +121,11 @@ Grant external access with username=(username@provider), permissions=(comma_sepa
 
 * publisher.example.com requests the user to sign the above challenge
 
-* User signs the above message, and sends it to publisher.example.com
+* User verifies if the signature matches that of the consumer (publisher.example.com), signs it, and sends it to publisher.example.com
 
 * publisher.example.com sends signed message to docs.example.com and receives a token.
 
-* The token can be used to access data until an expiry decided by the provider app.
+* The token can be used to access data until an expiry decided by the provider app (docs.example.com).
 
 
 ## Flow 5: Access from Multiple Devices

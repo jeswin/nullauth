@@ -66,7 +66,7 @@ If any of the values contain a comma, it needs to be escaped with a backslash '\
 * The login challenge text takes this form:
 
 ```javascript
-Login with username=(username@website), timestamp=(utc_milliseconds)
+Login with username={username@website}, timestamp={utc_milliseconds}
 
 //example
 Login with username=jeswin@example.com, timestsamp=1513348513265
@@ -75,7 +75,7 @@ Login with username=jeswin@example.com, timestsamp=1513348513265
 * The domain (or website) needs to append a signature after a semicolon. Signature is equivalent to hashing the above challenge with SHA256, and encrypting the hash with the domain's private key.
 
 ```javascript
-Login with username=(username@website), timestamp=(utc_milliseconds);APP_SIGNATURE_STRING
+Login with username={username@website}, timestamp={utc_milliseconds};APP_SIGNATURE_STRING
 ```
 
 * User verifies the app signature, signs challenge with his or her private key, and sends it to the server.
@@ -83,7 +83,10 @@ Login with username=(username@website), timestamp=(utc_milliseconds);APP_SIGNATU
 * Server verifies the username, and if the utcmilliseconds is recent enough returns a session token and optional expiry. If expiry is not set, it is left to the app.
 
 ```javascript
-(expiry = valid_till_time), (token = token);
+expiry=valid_till_time, token=token;
+
+//example
+expiry=1513348513265, token=478143470764587526327301935093
 ```
 
 * The session token is used for subsequent access.
@@ -97,7 +100,7 @@ This can be done in two ways.
 * Call an app's nullauth url with the following command. This is useful for password or key managers.
 
 ```javascript
-Update key with username=(username@website), timestamp=(utc_milliseconds), new_public_key=(new_public_key);USER_SIGNATURE_STRING
+Update key with username={username@website}, timestamp={utc_milliseconds}, new_public_key={new_public_key};USER_SIGNATURE_STRING
 ```
 
 ## Flow 4: Access Delegation (like OAuth)
@@ -107,7 +110,7 @@ This addresses usecases currently handled by OAuth. Eg: User has an account on d
 * An access delegation challenge text takes the form:
 
 ```javascript
-Grant external access with username=(username@provider), permissions=(comma_separated_permissions), consumer=(consumer), timestamp=(utc_milliseconds)
+Grant external access with username=(username@provider), permissions={comma_separated_permissions}, consumer={consumer}, timestamp={utc_milliseconds}
 
 //example
 Grant external access with username=jeswin@docs.example.com, permissions=read,contacts, consumer=publisher.example.com, timestamp=1513348513265
@@ -116,7 +119,7 @@ Grant external access with username=jeswin@docs.example.com, permissions=read,co
 * publisher.example.com signs the above message and sends it to the user
 
 ```javascript
-Grant external access with username=(username@provider), permissions=(comma_separated_permissions), consumer=(consumer), timestamp=(utc_milliseconds);CONSUMER_SIGNATURE_STRING
+Grant external access with username=(username@provider), permissions={comma_separated_permissions}, consumer={consumer}, timestamp={utc_milliseconds};CONSUMER_SIGNATURE_STRING
 ```
 
 * User verifies if the signature matches that of the consumer (publisher.example.com), signs it, and sends it to publisher.example.com
@@ -124,7 +127,6 @@ Grant external access with username=(username@provider), permissions=(comma_sepa
 * publisher.example.com sends signed message to docs.example.com and receives a token.
 
 * The token can be used to access data until an expiry decided by the provider app (docs.example.com).
-
 
 ## Flow 5: Access from Multiple Devices
 
@@ -136,7 +138,7 @@ There are two ways to do this.
 * Call an app's nullauth url with the following command. This is useful for password or key managers.
 
 ```javascript
-Add key with username=(username@website), device=(device_name), timestamp=(utc_milliseconds), public_key=(new_public_key);USER_SIGNATURE_STRING
+Add key with username={username@website}, device=(device_name),timestamp={utc_milliseconds}, public_key={new_public_key};USER_SIGNATURE_STRING
 ```
 
 ## Flow 6: Revoking access from a device (Programmatically)
@@ -144,7 +146,32 @@ Add key with username=(username@website), device=(device_name), timestamp=(utc_m
 * Call an app's nullauth url with the following command. This is useful for password or key managers.
 
 ```javascript
-Revoke key with username=(username@website), device=(device_name), timestamp=(utc_milliseconds);USER_SIGNATURE_STRING
+Revoke key with username={username@website}, device=(device_name), timestamp={utc_milliseconds};USER_SIGNATURE_STRING
+```
+
+## Flow 7: Get all keys for a user
+
+* This flow is for password managers to manage keys and devices on an app. This could, for instance, be used to revoke keys for certain devices.
+
+```javascript
+Get keys for username={username@website}, timestamp={utc_milliseconds};USER_SIGNATURE_STRING
+```
+
+Returns a list of keys in this format
+
+```javascript
+public_key={some_key1}, device={device_name1};
+public_key={some_key2}, device={device_name2};
+
+//example
+public_key=MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgHSwjBjB1SB9sU7ELLWQXKQi9kT6
+YzHehOI0bVHtGc8Q8O1UIh/fEMebMZD162gLdszf55xAxkO/rLaGwGoSLIDvPR9z
+NikHHqrUYCGc4tb6uK0RByk4czaAMUzkoRa7XqQ366AvAmMnnwky0pV+iLhpwbtp
+moxqCttY8K0oVzaZAgMBAAE=, device=mylaptop;
+public_key=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCvpKD1DSfkQKj1hhAn/PWTZ1tv
+i3xG2icLEHx856YJj/SiuGY8jzk5f37UvT8ug09vz/8Q6Bc9dkoiw5EIibxUGomS
+Zx2m6dA08NTiR2/TLgvA86fq4VqbXuFfk0Jlu/LYawJwwZpJlyjEfjKiyA3Nj7DH
+QnW2tSbfHpsTUPIbUQIDAQAB, device=myphone;
 ```
 
 ## Tools for End Users
@@ -156,7 +183,7 @@ Tools and extensions should refuse to sign if the challenge's signature cannot b
 Consider the following challenge:
 
 ```javascript
-Grant access with username=(username@providerapp), permissions=(comma_separated_permissions), consumer=(consumerapp), timestamp=(utc_milliseconds);CONSUMER_SIGNATURE_STRING
+Grant access with username={username@providerapp}, permissions={comma_separated_permissions}, consumer={consumerapp}, timestamp={utc_milliseconds};CONSUMER_SIGNATURE_STRING
 ```
 
 If the consumer-domain's public key cannot verify the above challege, the tool should refuse to sign it.
